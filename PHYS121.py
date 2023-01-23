@@ -8,6 +8,7 @@ Created on Tue May 24 21:19:19 2022
 # Import some required modules.
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 from matplotlib.pyplot import cm # used to generate a sequence of colours for plotting
 from scipy.optimize import curve_fit
 from IPython.display import HTML as html_print
@@ -82,7 +83,7 @@ def install_and_import(package):
 ###############################################################################
 # Check to see if required packages are already installed.                    #
 # If not, then install them.                                                  #
-# - modified 20221206                                                         #
+# - modified 20230119                                                         #
 ############################################################################### 
 # Start the 'Check' function.
 def Installer():
@@ -95,7 +96,7 @@ def Installer():
         spec = importlib.util.find_spec(name)
         if spec is None:
             display(html_print(cstr('Installing some packages ...\n', color = 'red')))
-            display(html_print(cstr("After the installation completes, please run the 'PHYS121.Installer()' function again before proceeding.\n", color = 'red')))
+            display(html_print(cstr("After the installation completes, please restart the kernel and then run the 'PHYS121.Installer()' function again before proceeding.\n", color = 'red')))
             subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--user', name])
             cnt += 1
 
@@ -104,7 +105,7 @@ def Installer():
         importlib.import_module('otter')
     except ImportError:
         display(html_print(cstr('Installing some packages ...\n', color = 'red')))
-        display(html_print(cstr("After the installation completes, please run the 'PHYS121.Installer()' function again before proceeding.\n", color = 'red')))
+        display(html_print(cstr("After the installation completes, please restart the kernel and then run the 'PHYS121.Installer()' function again before proceeding.\n", color = 'red')))
         import pip
         pip.main(['install', 'otter-grader'])
         cnt += 1
@@ -114,7 +115,7 @@ def Installer():
     if cnt == 0:
         display(html_print(cstr('All packages already installed. Please proceed.', color = 'black')))
     else:
-        display(html_print(cstr("\n Some packages were installed.  Please run the 'PHYS121.Installer()' function again before proceeding.", color = 'red')))
+        display(html_print(cstr("\n Some packages were installed.  Please restart the kernel and then run the 'PHYS121.Installer()' function again before proceeding.", color = 'red')))
         
 
 ###############################################################################
@@ -170,6 +171,13 @@ def eParse(num, places):
 # Start the 'Scatter' function.
 def Scatter(xData, yData, yErrors = [], xlabel = 'x-axis', ylabel = 'y-axis', xUnits = '', yUnits = '', fill = False, show = True):
     fig = ''
+    # Check to see if the elements of dataArray are numpy arrays.  If they are, convert to lists
+    if  type(xData).__module__ == np.__name__:
+        xData = xData.tolist()
+    if  type(yData).__module__ == np.__name__:
+        yData = yData.tolist()
+    if  type(yErrors).__module__ == np.__name__:
+        yErrors = yErrors.tolist()
     # Check that the lengths of the inputs are all the same.  Check that the other inputs are strings.
     if len(xData) != len(yData) and xData != []:
         display(html_print(cstr('The length of xData (' + str(len(xData)) + ') is not equal to the length of yData (' + str(len(yData)) + ').', color = 'magenta')))
@@ -1287,3 +1295,43 @@ def Mapping(x_coord, y_coord, potential, graphNum = 0, vectorField = True):
                 plt.quiver(x_E, y_E, ExSub, EySub, scale = Sc, scale_units = 'inches', width = 0.0035, color = 'k')
 
     return fig
+
+###############################################################################
+# Generate a sequence of random integers and then find their product          #
+# - modified 20230109                                                         #
+###############################################################################       
+# Check to see if ipysheet is installed.
+def printDigits():
+    # This randomly choses how many digits the generated number should be
+    numDigits = random.randint(25, 35)
+    
+    # Now we generate a list of random integers numDigits long
+    digits = list(np.random.randint(1, 9, numDigits))
+    
+    # Next, we take their product
+    product = 1
+    for n in digits:
+        product = product * float(n)
+        
+    # Print the results
+    print(f"Number of digits: {numDigits}\nList of digits: {digits}\nProduct: {int(product)}")
+    return
+    
+###############################################################################
+# Determine which digit generated from a product of integers was set to zero  #
+# - modified 20230109                                                         #
+###############################################################################       
+# Find the digit that was set to zero.
+def chase(Number):
+    length = len(Number) # Determine the length of Number.  Number is a string.
+    if Number[0] == '0':
+        Number = Number[1:length] # If Number has a leading zero, remove it
+    Number = int(Number) # Convert Number into an integer
+    while Number >= 10:
+        charList = list(str(Number)) # split numbers into individual string digits
+        Number = 0
+        for i in charList: # Sum the digits
+            Number += int(i)
+    if Number != 9: # Find the suppressed digit
+        Number = 9 - Number
+    return Number
