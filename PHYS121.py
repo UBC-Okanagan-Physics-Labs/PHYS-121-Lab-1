@@ -18,7 +18,6 @@ from IPython.display import HTML as html_print
 from IPython.display import display, Markdown, Latex
 from datetime import datetime, timedelta
 import sympy as sym
-import otter
 
 ###############################################################################
 # Import a set of modules                                                     #
