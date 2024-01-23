@@ -1530,10 +1530,20 @@ def dataLogger(questionStr, x, log):
                 objectType = 'integer'
             elif isinstance(xi, float):
                 objectType = 'float'
-            elif xi == ...:
-                objectType = 'ellipsis'
             elif isinstance(xi, complex):
                 objectType = 'complex'
+            elif isinstance(xi, list):
+                objectType = 'list'
+            elif isinstance(xi, np.ndarray):
+                objectType = 'numpy array'
+            elif isinstance(xi, pd.DataFrame):
+                objectType = 'pandas dataframe'
+            elif isinstance(xi, tuple):
+                objectType = 'tuple'
+            elif isinstance(xi, set):
+                objectType = 'set'
+            elif isinstance(xi, np.ndarray) == False and isinstance(xi, list) == False and isinstance(xi, pd.DataFrame) == False and isinstance(xi, tuple) == False and isinstance(xi, set) == False and xi == ...:
+                objectType = 'ellipsis'
             else:
                 objectType = 'unknown'
             if 'failed' in log:
@@ -1541,7 +1551,7 @@ def dataLogger(questionStr, x, log):
             else:
                 result = 'passed' 
             dt_string = corr.strftime("%d/%m/%Y" + '\t' + "%H:%M:%S")
-            f.write(dt_string + '\t' + questionStr + '\t' + str(xi) + '\t' + objectType + '\t' + result + '\n')
+            f.write(dt_string + '\t' + questionStr + '\t' + str(xi).replace('\n','') + '\t' + objectType + '\t' + result + '\n')
     return
 
 ###############################################################################
