@@ -18,6 +18,7 @@ from IPython.display import HTML as html_print
 from IPython.display import display, Markdown, Latex
 from datetime import datetime, timedelta
 import sympy as sym
+import inspect
 
 ###############################################################################
 # Import a set of modules                                                     #
@@ -1514,12 +1515,24 @@ def get_hash(num):
 # Log student entries to auto-graded questions                                #
 # - modified 20240120                                                         #
 ###############################################################################       
-def dataLogger(questionStr, x, log):
+def dataLogger(questionStr, x, varNames, log):
     if os.path.isfile('PHYS121_DataLogger.txt') == False:
         with open('PHYS121_DataLogger.txt', 'a+') as f:
-            f.write('Date' + '\t' + 'Time' + '\t' + 'Question' + '\t' + 'Response' + '\t' + 'Type' + '\t' + 'Result' + '\n')
+            f.write('Date' + '\t' + 'Time' + '\t' + 'Question' + '\t' + 'Variable Name' + '\t' + 'Response' + '\t' + 'Type' + '\t' + 'Result' + '\n')
     now = datetime.now()
     corr = now - timedelta(hours = 8)
+
+    testString = log.lower().replace('\n','').replace(' ', '').replace('name_and_student_number_1', '')
+    results = []
+    for k in x:
+        results = results + ['passed']
+    if 'failed' in testString: 
+        splitList = testString.split('failed')
+        for j in range(len(varNames)):
+            for i in range(1, len(splitList), 2):
+                if varNames[j] in splitList[i]:
+                    results[j] = 'failed'
+    cnt = 0
     for xi in x:
         with open('PHYS121_DataLogger.txt', 'a+') as f:
             if isinstance(xi, sym.Expr):
@@ -1546,19 +1559,17 @@ def dataLogger(questionStr, x, log):
                 objectType = 'ellipsis'
             else:
                 objectType = 'unknown'
-            if 'failed' in log:
-                result = 'failed'
-            else:
-                result = 'passed' 
+            
             dt_string = corr.strftime("%d/%m/%Y" + '\t' + "%H:%M:%S")
-            f.write(dt_string + '\t' + questionStr + '\t' + str(xi).replace('\n','') + '\t' + objectType + '\t' + result + '\n')
+            f.write(dt_string + '\t' + questionStr + '\t' + varNames[cnt] + '\t' + str(xi).replace('\n','') + '\t' + objectType + '\t' + results[cnt] + '\n')
+            cnt += 1
     return
 
 ###############################################################################
 # Log student entries to auto-graded questions                                #
 # - modified 20240120                                                         #
 ###############################################################################       
-def graderCheck(x, check):
+def graderCheck(x, varNames, check):
     questionStr = str(check).split(' results')[0] # Get a string of the question name.
-    dataLogger(questionStr, x, str(check))
+    dataLogger(questionStr, x, varNames, str(check))
     return check
